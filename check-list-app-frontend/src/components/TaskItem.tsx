@@ -41,7 +41,7 @@ export default function TaskItem({ task }: Props): JSX.Element {
       </label>
       <button onClick={removeTask}>Delete task</button>
       <button onClick={openTaskModal}>Edit task</button>
-
+      <button onClick={console.log}> Add task</button>
 
       <>
         {isOpen ?

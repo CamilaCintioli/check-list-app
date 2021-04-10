@@ -1,4 +1,4 @@
-import { Injectable, Inject } from '@nestjs/common';
+import { Injectable, Inject, NotFoundException } from '@nestjs/common';
 import constants from './constants';
 import { CreateTaskDto } from './dto/create-task.dto';
 import { UpdateTaskDto } from './dto/update-task.dto';
@@ -23,15 +23,15 @@ export class TasksService {
       .then(this.toTaskDto);
   }
 
-  async update({ id, name, isCompleted }: UpdateTaskDto): Promise<TaskDto> {
+  async update(id, { name, isCompleted }: UpdateTaskDto): Promise<TaskDto> {
     const task = await this.tasksRepository.findOne({ where: { id } })
+
+    if(!task) throw new NotFoundException(id)
 
     if (typeof name === "string") task.name = name;
     if (typeof isCompleted === "boolean") task.completedAt = isCompleted ? new Date() : null;
 
-    await task.save();
-
-    return this.toTaskDto(task);
+    return this.toTaskDto(await task.save());
   }
 
   delete({ id }: DeleteTaskDto): Promise<number> {

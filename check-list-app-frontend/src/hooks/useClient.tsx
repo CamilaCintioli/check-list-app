@@ -24,8 +24,8 @@ class HttpClient implements Client {
     return this.http.get("/tasks").then(({ data }) => (data))
   }
 
-  updateTask(task: TaskDto): Promise<TaskDto>{
-    return this.http.patch(`/tasks/${task.id}`, {task}).then(({ data }) => (data))
+  updateTask(task: TaskDto): Promise<TaskDto> {
+    return this.http.patch(`/tasks/${task.id}`, task).then(({ data }) => (data))
   }
 
   removeTask(id: number): Promise<number> {
