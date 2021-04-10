@@ -3,11 +3,13 @@ import { createContext, ReactNode, useContext, useMemo } from "react";
 
 interface Client {
   getTasks(): Promise<TaskDto[]>
+  updateTask(task: Partial<TaskDto>): Promise<TaskDto>
 }
 
 export interface TaskDto {
   id: number
   name: string
+  isCompleted: boolean
 }
 
 class HttpClient implements Client {
@@ -20,10 +22,15 @@ class HttpClient implements Client {
   getTasks(): Promise<TaskDto[]> {
     return this.http.get("/tasks").then(({ data }) => (data))
   }
+
+  updateTask(task: TaskDto): Promise<TaskDto>{
+    return this.http.patch(`/tasks/${task.id}`, {task}).then(({ data }) => (data))
+  }
 }
 
 const ClientContext = createContext<Client>({
-  getTasks: () => Promise.reject()
+  getTasks: () => Promise.reject(),
+  updateTask: () => Promise.reject()
 });
 
 interface ClientProviderProps {

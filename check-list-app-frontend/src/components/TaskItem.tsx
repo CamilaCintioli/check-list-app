@@ -1,5 +1,6 @@
-import React from 'react';
+import React, { useCallback } from 'react';
 import { TaskDto } from '../hooks/useClient';
+import useTask from '../hooks/useTask';
 
 
 interface Props {
@@ -7,9 +8,15 @@ interface Props {
 }
 
 export default function TaskItem({ task }: Props): JSX.Element {
+  const [,{ update }] = useTask(task.id);
+
+  const handleChange = useCallback(({target: {checked}}) => {
+    update({ isCompleted: (checked as boolean) });
+  },[update]);
+
   return (
     <label>
-      <input type="checkbox"/>
+      <input type="checkbox" defaultChecked={task.isCompleted} onChange={handleChange}/>
       {task.name}
     </label>
   );
