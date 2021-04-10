@@ -5,30 +5,40 @@ import { UpdateTaskDto } from './dto/update-task.dto';
 import { DeleteTaskDto } from './dto/delete-task.dto';
 
 import { Task } from './task.entity';
+import { TaskDto } from './dto/task.dto';
 
 @Injectable()
 export class TasksService {
   constructor(
     @Inject(constants.tasksRepository) private tasksRepository: typeof Task,
-  ) {}
+  ) { }
 
-  async create(task: CreateTaskDto): Promise<Task> {
-    return this.tasksRepository.create(task);
+  toTaskDto({ id, name, completedAt }: Task): TaskDto {
+    return ({ id, name, isCompleted: !!completedAt && new Date() > completedAt });
   }
 
-  async update({ id, ...rest }: UpdateTaskDto): Promise<Task> {
-    return this.tasksRepository.findOne({ where: { id } }).then((task) => {
-      Object.assign(task, rest);
-      task.save();
-      return task;
-    });
+  create(task: CreateTaskDto): Promise<TaskDto> {
+    return this.tasksRepository
+      .create(task)
+      .then(this.toTaskDto);
   }
 
-  async delete({ id }: DeleteTaskDto): Promise<number> {
+  async update({ id, name, isCompleted }: UpdateTaskDto): Promise<TaskDto> {
+    const task = await this.tasksRepository.findOne({ where: { id } })
+
+    if (typeof name === "string") task.name = name;
+    if (typeof isCompleted === "boolean") task.completedAt = isCompleted ? new Date() : null;
+
+    await task.save();
+
+    return this.toTaskDto(task);
+  }
+
+  delete({ id }: DeleteTaskDto): Promise<number> {
     return this.tasksRepository.destroy({ where: { id } });
   }
 
-  async findAll(): Promise<Task[]> {
-    return this.tasksRepository.findAll<Task>();
+  findAll(): Promise<TaskDto[]> {
+    return this.tasksRepository.findAll().then(tasks => (tasks.map(task => this.toTaskDto(task))));
   }
 }
