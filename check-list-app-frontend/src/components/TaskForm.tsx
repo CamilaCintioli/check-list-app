@@ -1,6 +1,7 @@
 import React from 'react';
 import { Formik, Form, Field } from 'formik';
 import { TaskDto } from '../hooks/useClient';
+import Button from './Button';
 
 
 interface Props {
@@ -13,7 +14,7 @@ export default function TaskForm({ task, onSubmit }: Props): JSX.Element {
     <Formik initialValues={task ?? { id: 0, name: "", isCompleted: false }} onSubmit={onSubmit}>
       <Form>
         <Field name='name' type="text" />
-        <button type="submit">Aceptar</button>
+        <Button type="submit">Aceptar</Button>
       </Form>
     </Formik>
   );

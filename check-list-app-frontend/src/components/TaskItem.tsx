@@ -1,15 +1,36 @@
 import { useCallback, useState } from 'react';
-import AriaModal from 'react-aria-modal';
+import styled from 'styled-components';
 import { TaskDto } from '../hooks/useClient';
 import useTask from '../hooks/useTask';
+import Button from './Button';
+import Checkbox from './Checkbox';
+import Modal from './Modal';
+import Icon from './Icon';
 import TaskForm from './TaskForm';
 
+const Article = styled.article`
+display: flex;
+align-items: center;
+`
 
+const Label = styled.label`
+  display: contents;
+`;
+
+const TaskName = styled.span`
+  margin-inline-start: 1em;
+  margin-inline-end: auto;
+`
+
+const ButtonGroup = styled.div`
+ 
+`
 interface Props {
   task: TaskDto
+  onRemove: (task: TaskDto) => unknown
 }
 
-export default function TaskItem({ task: initialTask }: Props): JSX.Element {
+export default function TaskItem({ task: initialTask, onRemove }: Props): JSX.Element {
   const [task, { update, remove }] = useTask(initialTask?.id, initialTask);
 
   const [isOpenEditionModal, setIsOpenEditionModal] = useState(false);
@@ -19,8 +40,9 @@ export default function TaskItem({ task: initialTask }: Props): JSX.Element {
   }, [update]);
 
   const removeTask = useCallback(() => {
+    onRemove(initialTask);
     return remove();
-  }, [remove])
+  }, [onRemove, initialTask, remove])
 
   const closeEditionModal = useCallback(() => {
     setIsOpenEditionModal(false)
@@ -36,26 +58,43 @@ export default function TaskItem({ task: initialTask }: Props): JSX.Element {
 
   return (
     <>
-      <label>
-        <input type="checkbox" defaultChecked={task?.isCompleted} onChange={handleChange} />
-        {task?.name}
-      </label>
-      <button onClick={removeTask}>Delete task</button>
-      <button onClick={openEditionModal}>Edit task</button>
+      <Article>
+        <Label>
+          <Checkbox type="checkbox" defaultChecked={task?.isCompleted} onChange={handleChange} />
+          <TaskName>
+            {task?.name}
+          </TaskName>
+        </Label>
+        <ButtonGroup>
+          <Button onClick={removeTask}>
+            <Icon
+              src='/svg/delete_white_24dp.svg'
+              title='Remove task'
+              alt='Remove task' />
+            <span> Delete task </span>
+          </Button>
+          <Button onClick={openEditionModal}>
 
+            <Icon
+              src='/svg/edit_white_24dp.svg'
+              title='Edit task'
+              alt='Edit task' />
+            <span> Edit task </span></Button>
+        </ButtonGroup>
+      </Article>
       {isOpenEditionModal && (
-        <AriaModal
+        <Modal
           onExit={closeEditionModal}
           titleText="Edit task"
           verticallyCenter={true}
           underlayClickExits={true}
         >
           <>
-          <h6>Edit task</h6>
-          {task && <TaskForm task={task} onSubmit={editTask} />}
-          <button onClick={closeEditionModal}>Cerrar</button>
+              <h3>Edit task</h3>
+              {task && <TaskForm task={task} onSubmit={editTask} />}
+              <Button onClick={closeEditionModal}>Cerrar</Button>
           </>
-        </AriaModal>)}
+        </Modal>)}
 
     </>
   );

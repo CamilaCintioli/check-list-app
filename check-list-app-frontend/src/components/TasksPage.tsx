@@ -1,14 +1,34 @@
-import { useCallback, useState } from 'react';
-import AriaModal from 'react-aria-modal';
+import React, { useCallback, useState } from 'react';
+import styled from 'styled-components';
 
 import TaskForm from './TaskForm';
+import Modal from './Modal';
 import useTasks from '../hooks/useTasks';
 import TaskItem from './TaskItem';
 import { TaskDto } from '../hooks/useClient';
+import Button from './Button';
+import Icon from './Icon';
+
+
+const Title = styled.h3`
+
+`
+const Ul = styled.ul`
+  list-style: none;
+`
+const Li = styled.li`
+
+`
+const Main = styled.main`
+  display: flex;
+  flex-direction: column;
+  max-width: 1280px;
+  margin: auto;
+`
 
 
 export default function TasksPage(): JSX.Element {
-  const [tasks, { create }] = useTasks()
+  const [tasks, { create, remove }] = useTasks()
 
   const [isOpenCreationModal, setIsOpenCreationModal] = useState(false);
 
@@ -25,28 +45,34 @@ export default function TasksPage(): JSX.Element {
   }, [create, closeCreationModal])
 
   return (
-    <div>
-      <h1>To do list</h1>
-      <ul>
+    <Main>
+      <Title>To do list</Title>
+      <Ul>
         {tasks.map((task) => (
-          <li key={task.id}>
-            <TaskItem task={task} />
-          </li>
+          <Li key={task.id}>
+            <TaskItem task={task} onRemove={remove} />
+          </Li>
         ))}
-      </ul>
-      <button onClick={openCreationModal}> Add task</button>
+      </Ul>
+      <Button onClick={openCreationModal}>
+        <Icon 
+          src='/svg/add_task_white_24dp.svg'
+          title='Add task'
+          alt='Add task'/>
+        <span>Add task</span>
+        </Button>
 
       {isOpenCreationModal && (
-        <AriaModal
+        <Modal
           onExit={closeCreationModal}
           titleText="Add task"
           verticallyCenter={true}
           underlayClickExits={true}
         >
-          <h6>Add task</h6>
+          <h3>Add task</h3>
           <TaskForm onSubmit={addTask} />
-          <button onClick={closeCreationModal}>Cerrar</button>
-        </AriaModal>)}
-    </div>
+          <Button onClick={closeCreationModal}>Cerrar</Button>
+        </Modal>)}
+    </Main>
   );
 }
