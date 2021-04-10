@@ -22,7 +22,7 @@ export class TasksController {
   }
 
   @Get(":id")
-  getTaskById(@Param("id") id: string): Promise<TaskDto[]> {
+  getTaskById(@Param("id") id: string): Promise<TaskDto> {
     return this.taskService.findOneById(id);
   }
 
