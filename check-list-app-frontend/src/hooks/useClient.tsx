@@ -3,7 +3,8 @@ import { createContext, ReactNode, useContext, useMemo } from "react";
 
 interface Client {
   getTasks(): Promise<TaskDto[]>
-  updateTask(task: Partial<TaskDto>): Promise<TaskDto>
+  updateTask(task: Partial<TaskDto>): Promise<TaskDto>,
+  removeTask(id: number): Promise<number>
 }
 
 export interface TaskDto {
@@ -26,11 +27,16 @@ class HttpClient implements Client {
   updateTask(task: TaskDto): Promise<TaskDto>{
     return this.http.patch(`/tasks/${task.id}`, {task}).then(({ data }) => (data))
   }
+
+  removeTask(id: number): Promise<number> {
+    return this.http.delete(`/tasks/${id}`).then(({ data }) => (data))
+  }
 }
 
 const ClientContext = createContext<Client>({
   getTasks: () => Promise.reject(),
-  updateTask: () => Promise.reject()
+  updateTask: () => Promise.reject(),
+  removeTask: () => Promise.reject()
 });
 
 interface ClientProviderProps {
