@@ -26,7 +26,7 @@ export class TasksService {
   async update(id, { name, isCompleted }: UpdateTaskDto): Promise<TaskDto> {
     const task = await this.tasksRepository.findOne({ where: { id } })
 
-    if(!task) throw new NotFoundException(id)
+    if (!task) throw new NotFoundException(id)
 
     if (typeof name === "string") task.name = name;
     if (typeof isCompleted === "boolean") task.completedAt = isCompleted ? new Date() : null;
@@ -40,5 +40,9 @@ export class TasksService {
 
   findAll(): Promise<TaskDto[]> {
     return this.tasksRepository.findAll().then(tasks => (tasks.map(task => this.toTaskDto(task))));
+  }
+
+  findOneById(id: string): Promise<TaskDto> {
+    return this.tasksRepository.findOne({ where: { id } }).then(task => this.toTaskDto(task));
   }
 }

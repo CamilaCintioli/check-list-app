@@ -1,4 +1,4 @@
-import { useCallback } from 'react';
+import { useCallback, useEffect, useState } from 'react';
 import useClient, { TaskDto } from "./useClient";
 
 interface TaskActions {
@@ -6,17 +6,22 @@ interface TaskActions {
   remove: () => Promise<number>
 }
 
-export default function useTask(id: number): [TaskDto | null, TaskActions] {
+export default function useTask(id: number, initialTask?: TaskDto): [TaskDto | null, TaskActions] {
   const client = useClient();
 
+  const [task, setTask] = useState<TaskDto | null>(initialTask ?? null)
+
+  useEffect(() => {
+    if (!initialTask) client.getTask(id).then(setTask);
+  }, [client, id])
+
   const update = useCallback((task: Partial<TaskDto>) => {
-    return client.updateTask({ ...task, id: (task.id ?? id) })
+    return client.updateTask({ ...task, id: (task.id ?? id) }).then(t => { setTask(t); return t })
   }, [id, client])
 
   const remove = useCallback(() => {
     return client.removeTask(id)
   }, [id, client])
 
-  return [null, { update, remove }];
-
+  return [task, { update, remove }];
 }

@@ -1,7 +1,9 @@
-import { useEffect, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import useClient, { TaskDto } from "./useClient";
 
-export default function useTasks(): [TaskDto[], { loading: boolean }] {
+interface TasksOperations { loading: boolean; create(task: TaskDto): Promise<TaskDto> }
+
+export default function useTasks(): [TaskDto[], TasksOperations] {
     const client = useClient()
 
     const [tasks, setTasks] = useState<TaskDto[]>([]);
@@ -17,10 +19,15 @@ export default function useTasks(): [TaskDto[], { loading: boolean }] {
             })
     }, [client])
 
+    const create = useCallback((task: TaskDto) => {
+        return client.createTask(task)
+      }, [client])
+    
     return [
         tasks,
         {
-            loading
+            loading,
+            create
         }
     ]
 }
